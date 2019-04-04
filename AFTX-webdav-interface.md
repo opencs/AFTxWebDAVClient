@@ -60,6 +60,20 @@ dentro do **AFTx**. A autenticação é sempre feita utilizando o padrão
 **Basic access authentication** definido pelo padrão HTTTP na 
 [RFC7617](https://tools.ietf.org/html/rfc7617).
 
+## Direitos dos usuários para cada operações
+
+Determinadas operações só são permididas para os usuários somente se
+as seguintes combinações de direitos estiverem configuradas no **AFTx**:
+
+Operação | deleteEnabled | getEnabled | logEnabled | putEnabled
+-------- | ------------- | ---------- | ---------- | ----------
+Listar arquivos da caixa de entrada | - | sim | - | -
+Baixar arquivos da caixa de entrada | - | sim | - | -
+Apagar arquivos da caixa de entrada | sim | sim | - | -
+Subir arquivo na caixa de saída | - | - | - | sim
+Listar logs | - | - | sim | -
+Baixar logs | - | - | sim | -
+
 ## Operações disponívies
 
 Por medidas de segurança, o **AFTx** expõe apenas interfaces para:
