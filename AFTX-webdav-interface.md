@@ -1,49 +1,184 @@
 # Interface Webdav do AFTx
+Copyright (c) 2007-2019 Open Commnications Security
 
+* Autores:
+  * Fabio Jun Takada Chino
+  * Cesar Luiz Ferracin
+  * Rafael Teixeira
+  * Augusto Kiramoto
 
-## Introdução
+## Sobre este documento
 
+Este documento descreve a interface de aplicação disponibilizada pelo **AFTx** para
+outras aplicações. Este documento é especialmente importante para integrações que não
+utilizam a linguagem **Java**.
 
+Para usuários do **Java**, recomenda-se o uso da biblioteca de integração
+**AFTxWebDAVClient** que encontra-se neste repositório em:
 
+* /java/AFTxWebDAVClient
 
-## Operações
+### Audiência
 
+Este documento destina-se a desenvolvedores de aplicação que possuem conhecimentos
+sobre o desenvolvimento de aplicações Web e o uso dos protocolos HTTP, HTTPS e
+WEBDAV.
 
+## Comunicação com outros sistemas
 
-* https://baseUrl:port/delete/inboxName/filename
+A comunicação do **AFTx** com outros sistemas se dá por uma interface **WebDAV** 
+([RFC4918](https://tools.ietf.org/html/rfc4918)). Neste caos, os arquivos são
+listas, baixados e/ou enviados utilizando este padrão.
 
-* https://baseUrl:port/get/inboxName/filename
-* https://baseUrl:port/list/inboxName
-* https://baseUrl:port/logs
-* https://baseUrl:port/log/logname
+É importante salientar que esta interface precede a adoção em larga escala
+dos WebServices **REST** e por isto não deve ser confundida com a interpretação
+moderna desta.
 
-### PUT
+Embora bastante similar aos WebServices REST, esta interface **WebDAV** possui
+algunas pequenas diferenças de operação que as torna incompatíveis em algunas
+situações.
 
-* https://baseUrl:port/put/outboxName/filename
+É importante salientar que o AFTx normalmente expõe o protocolo HTTPS usando
+um certificado SSL auto-assinado. Nestes casos, é necessário permitir que o
+cliente possa a cessar o **AFTx** aceitando o certificado utilizado.
 
+## Endereço padrão do AFTx
 
-##
+Por padrão, o **AFTx** expõe uma conexão HTTPS na porta 8443 usando todos os IPs 
+disponíveis no computador no qual o **AFTx** está instalado.
 
-##
+Para acessar o serviço é necessário utilizar um usuário e uma senha definida dentro
+da interface de configuração do **AFT**/**AFTx**.
 
+## Operações disponívies
 
-### Resposta da listagem
+Por medidas de segurança, o **AFTx** expõe apenas interfaces para:
+
+* Listar, baixar e apagar arquivos da caixa de entrada;
+* Enviar arquivos para a caixa de saída;
+* Listar e baixar arquivos de log do AFTx;
+
+A listagem de arquivos da caixa de saída bem com a listagem das caixas
+disponíveis não podem ser executas por este interface.
+
+Todas as operações seguem o protocolo WebDAV e não devem ser confundidas
+com operações REST.
+
+### Listar arquivos da caixa de entrada
+
+A listagem de arquivos da caixa de entrada se dá pela chamada da URL com o verbo **GET**:
+
+* https://\<baseUrl>:\<port>/list/\<inboxName>
+
+onde:
+
+* \<baseUrl>: IP ou nome do servidor;
+* \<port>: Porta do AFTx;
+* \<inboxName>: Nome da caixa de entrada;
+
+O código de retorno será 200/OK e o conteúdo da resposta será um XML simples no formato:
 
 ```
 <availableFiles>
-    <file>b_20190404041913</file>
+    <file>file1</file>
+    <file>file2</file>
+    <file>file3</file>
+    ...
+    <file>filen</file>
 </availableFiles>
 
 ```
 
-### Resposta da listagem dos logs
+### Baixar arquivos da caixa de entrada
+
+A listagem de arquivos da caixa de entrada se dá pela chamada da URL com o verbo **GET**:
+
+* https://\<baseUrl>:\<port>/get/\<inboxName>/\<filename>
+
+onde:
+
+* \<baseUrl>: IP ou nome do servidor;
+* \<port>: Porta do AFTx;
+* \<inboxName>: Nome da caixa de entrada;
+* \<filename>: Nome do arquivo a ser baixado;
+
+O código de retorno será 200/OK e o conteúdo da resposta será o conteúdo do arquivo.
+
+### Apagar arquivo da caixa de entrada
+
+A listagem de arquivos da caixa de entrada se dá pela chamada da URL com o verbo **DELETE**:
+
+* https://\<baseUrl>:\<port>/delete/\<inboxName>/\<filename>
+
+onde:
+
+* \<baseUrl>: IP ou nome do servidor;
+* \<port>: Porta do AFTx;
+* \<inboxName>: Nome da caixa de entrada;
+* \<filename>: Nome do arquivo a ser apagado;
+
+O código de retorno será 204/No Content. Esta chamada não retorna nenhum conteúdo.
+
+É importante notar que os arquivos da caixa de entrada precisam ser apagados pela
+aplicação. O **AFTx** não apaga os arquivos automaticamente.
+
+### Enviar arquivo da caixa de saída
+
+A listagem de arquivos da caixa de entrada se dá pela chamada da URL com o verbo **PUT**:
+
+* https://\<baseUrl>:\<port>/put/\<outboxName>/\<filename>
+
+onde:
+
+* \<baseUrl>: IP ou nome do servidor;
+* \<port>: Porta do AFTx;
+* \<outboxName>: Nome da caixa de saída;
+* \<filename>: Nome do arquivo a ser enviado;
+
+Neste caso o conteúdo do corpo da requisição é o conteúdo do arquivo a ser enviado.
+
+O código de retorno será 201/Created. Esta chamada não retorna nenhum conteúdo.
+
+### Listar arquivos da caixa de logs
+
+A listagem de arquivos da caixa de entrada se dá pela chamada da URL com o verbo **GET**:
+
+* https://\<baseUrl>:\<port>/logs
+
+onde:
+
+* \<baseUrl>: IP ou nome do servidor;
+* \<port>: Porta do AFTx;
+
+O código de retorno será 200/OK e o conteúdo da resposta será um XML simples no formato:
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <ul>
   <li>
-    <a href="/log/Plain-Text">Plain-Text</a>
+    <a href="/log/Plain-Text">log-name.xml</a>
   </li>
 </ul>
 ```
+
+### Baixar arquivos da caixa de logs
+
+A listagem de arquivos da caixa de entrada se dá pela chamada da URL com o verbo **GET**:
+
+* https://\<baseUrl>:\<port>/log/\<logname>
+
+onde:
+
+* \<baseUrl>: IP ou nome do servidor;
+* \<port>: Porta do AFTx;
+* \<logname>: Nome do arquivo de log;
+
+O código de retorno será 200/OK e o conteúdo da resposta será o conteúdo do arquivo de log.
+
+## Exemplo de implementação
+
+Um exemplo da implementação desta API é a **AFTxWebDAVClient** que encontra-se neste 
+repositório no diretório:
+
+* /java/AFTxWebDAVClient
 
