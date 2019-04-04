@@ -50,6 +50,16 @@ disponíveis no computador no qual o **AFTx** está instalado.
 Para acessar o serviço é necessário utilizar um usuário e uma senha definida dentro
 da interface de configuração do **AFT**/**AFTx**.
 
+Com exceção das operações de subida de arquivo e remoção de arquivos, todas as
+demais podem ser simuladas por qualquer navegador de Internet.
+
+## Autenticação
+
+Todas as chamadas ao **AFTx** devem ser autenticadas com um usuário e senha definidos
+dentro do **AFTx**. A autenticação é sempre feita utilizando o padrão 
+**Basic access authentication** definido pelo padrão HTTTP na 
+[RFC7617](https://tools.ietf.org/html/rfc7617).
+
 ## Operações disponívies
 
 Por medidas de segurança, o **AFTx** expõe apenas interfaces para:
