@@ -89,6 +89,12 @@ O código de retorno será 200/OK e o conteúdo da resposta será um XML simples
 
 ```
 
+#### CURL
+
+```
+$ curl https://<baseUrl>:<port>/list/<inboxName>
+```
+
 ### Baixar arquivos da caixa de entrada
 
 A listagem de arquivos da caixa de entrada se dá pela chamada da URL com o verbo **GET**:
@@ -103,6 +109,12 @@ onde:
 * \<filename>: Nome do arquivo a ser baixado;
 
 O código de retorno será 200/OK e o conteúdo da resposta será o conteúdo do arquivo.
+
+#### CURL
+
+```
+$ curl https://<baseUrl>:<port>/get/<inboxName>/<filename>
+```
 
 ### Apagar arquivo da caixa de entrada
 
@@ -122,6 +134,12 @@ O código de retorno será 204/No Content. Esta chamada não retorna nenhum cont
 É importante notar que os arquivos da caixa de entrada precisam ser apagados pela
 aplicação. O **AFTx** não apaga os arquivos automaticamente.
 
+#### CURL
+
+```
+$ curl -X DELETE https://<baseUrl>:<port>/delete/<inboxName>/<filename>
+```
+
 ### Enviar arquivo da caixa de saída
 
 A listagem de arquivos da caixa de entrada se dá pela chamada da URL com o verbo **PUT**:
@@ -138,6 +156,12 @@ onde:
 Neste caso o conteúdo do corpo da requisição é o conteúdo do arquivo a ser enviado.
 
 O código de retorno será 201/Created. Esta chamada não retorna nenhum conteúdo.
+
+#### CURL
+
+```
+$ curl -t <file-to-upload> https://<baseUrl>:<port>/put/<inboxName>/<filename>
+```
 
 ### Listar arquivos da caixa de logs
 
@@ -161,6 +185,12 @@ O código de retorno será 200/OK e o conteúdo da resposta será um XML simples
 </ul>
 ```
 
+#### CURL
+
+```
+$ curl https://<baseUrl>:<port>/logs
+```
+
 ### Baixar arquivos da caixa de logs
 
 A listagem de arquivos da caixa de entrada se dá pela chamada da URL com o verbo **GET**:
@@ -174,6 +204,12 @@ onde:
 * \<logname>: Nome do arquivo de log;
 
 O código de retorno será 200/OK e o conteúdo da resposta será o conteúdo do arquivo de log.
+
+#### CURL
+
+```
+$ curl https://<baseUrl>:<port>/log/<logname>
+```
 
 ## Exemplo de implementação
 
