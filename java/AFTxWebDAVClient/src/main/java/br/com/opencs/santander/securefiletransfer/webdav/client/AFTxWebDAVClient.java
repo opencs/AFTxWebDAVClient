@@ -53,13 +53,12 @@ import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
 import org.apache.jackrabbit.webdav.client.methods.PutMethod;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Esta classe implementa o cliente do AFTx. 
@@ -74,39 +73,48 @@ public class AFTxWebDAVClient implements IAFTxClient {
 	
 	private static final ResourceBundle RESOURCES = ResourceBundle.getBundle(AFTxWebDAVClient.class.getName());
 	
-	private static Logger logger = Logger.getLogger(AFTxWebDAVClient.class);
+	private static Logger logger = LoggerFactory.getLogger(AFTxWebDAVClient.class);
 
 	private String AFTxBaseURL = null;
 
 	/**
-	 * Cria uma nova instância desta classe. Este método precisa receber 
+	 * Cria uma nova instância desta classe. 
+	 * 
+	 * @param trustStoreLocation Arquivo com o keystore a ser utilizado. Se nulo, o keystore
+	 * @param trustStorePassword Senha do keystore a ser utilizado.
+	 * @throws IOException Em caso de erro.
+	 * @since 2.1.0
+	 */
+	public AFTxWebDAVClient(String trustStoreLocation, String trustStorePassword)
+			throws IOException {
+		
+		if (trustStoreLocation != null) {
+			File truststore = new File(trustStoreLocation);
+			if (!truststore.isFile())
+				throw new IOException(String.format("File '%1%s' doesn't exist",  truststore.getCanonicalPath())) ;
+			System.setProperty("javax.net.ssl.trustStore", truststore.getCanonicalPath());
+			System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+		}
+	}
+	
+	/**
+	 * Cria uma nova instância desta classe. 
 	 * 
 	 * @param log4JConfigurationFilePath Caminho para o arquivo de configuração do Log4J.
 	 * @param trustStoreLocation Arquivo com o keystore a ser utilizado. Se nulo, o keystore
 	 * @param trustStorePassword Senha do keystore a ser utilizado.
 	 * @throws IOException Em caso de erro.
+	 * @deprecated 
 	 */
+	@Deprecated
 	public AFTxWebDAVClient(String log4JConfigurationFilePath, String trustStoreLocation, String trustStorePassword)
 			throws IOException {
-		
-		File log4JConfig = new File(log4JConfigurationFilePath);
-		if (log4JConfig.isFile())
-			DOMConfigurator.configure(log4JConfigurationFilePath);
-		else
-			BasicConfigurator.configure();
-
-		if (trustStoreLocation != null) {
-			File truststore = new File(trustStoreLocation);
-			if (!truststore.isFile())
-				throw new IOException("File '" + truststore.getCanonicalPath() + "' doesn't exist");
-			System.setProperty("javax.net.ssl.trustStore", truststore.getCanonicalPath());
-			System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-		}
-	}
+		this(trustStoreLocation, trustStorePassword);
+	}	
 
 	public int deleteFileInAFT(String inputBoxName, String username, String encryptedPassword, String aftFileName) {
 
-		logger.info("User " + username + " request deletion of file " + aftFileName);
+		logger.info("User {} request deletion of file {}.", username, aftFileName);
 		if (inputBoxName == null) {
 			logger.error("boxPath is null for deleteFileInAFT");
 			return AFTxWebDAVClientConstants.ERROR_URL_IS_NULL;
@@ -134,10 +142,10 @@ public class AFTxWebDAVClient implements IAFTxClient {
 				client.executeMethod(method);
 
 				if (method.getStatusCode() != HttpStatus.SC_NO_CONTENT) {
-					logger.error("HTTP return code is invalid: " + method.getStatusCode());
+					logger.error("HTTP return code is invalid: {}", method.getStatusCode());
 					return AFTxWebDAVClientConstants.ERROR_HTTP_RETURN_CODE_IS_INVALID;
 				}
-				logger.info("User " + username + " deleted file " + aftFileName);
+				logger.info("User {} deleted file {}", username, aftFileName);
 			} finally {
 				method.releaseConnection();
 			}
@@ -178,8 +186,8 @@ public class AFTxWebDAVClient implements IAFTxClient {
 			return AFTxWebDAVClientConstants.ERROR_FILE_TO_WRITE_CONTENT_FROM_AFT_IS_NULL;
 		}
 
-		logger.info("User " + username + " request aft file " + aftFileName + " to write to "
-				+ fileFromAFT.getAbsolutePath());
+		logger.info("User {} request aft file {} to write to {}",
+				username, aftFileName, fileFromAFT.getAbsolutePath());
 
 		String baseUrl = AFTxBaseURL + "/get/" + inputBoxName + "/" + aftFileName;
 		try {
@@ -214,7 +222,8 @@ public class AFTxWebDAVClient implements IAFTxClient {
 						out.close();
 				}
 				logger.info(
-						"User " + username + " got aft file " + aftFileName + " to " + fileFromAFT.getAbsolutePath());
+						"User {} got aft file {} to {}",
+						username, aftFileName, fileFromAFT.getAbsolutePath());
 			} finally {
 				method.releaseConnection();
 			}
@@ -234,7 +243,7 @@ public class AFTxWebDAVClient implements IAFTxClient {
 	@SuppressWarnings("unchecked")
 	public List<String> getFileList(String inputBoxName, String username, String encryptedPassword) {
 
-		logger.info("User " + username + " request list of aft available files at INBOX");
+		logger.info("User {} request list of aft available files at INBOX", username);
 
 		if (inputBoxName == null) {
 			logger.error("boxPath is null for getFileList");
@@ -260,7 +269,7 @@ public class AFTxWebDAVClient implements IAFTxClient {
 				client.executeMethod(method);
 
 				if (method.getStatusCode() != HttpStatus.SC_OK) {
-					logger.error("HTTP return code is invalid: " + method.getStatusCode());
+					logger.error("HTTP return code is invalid: {}", method.getStatusCode());
 					return null;
 				}
 
@@ -278,7 +287,7 @@ public class AFTxWebDAVClient implements IAFTxClient {
 					if (inputStream != null)
 						inputStream.close();
 				}
-				logger.info("User " + username + " got list of aft available files at INBOX");
+				logger.info("User {} got list of aft available files at INBOX", username);
 			} finally {
 				method.releaseConnection();
 			}
@@ -301,7 +310,7 @@ public class AFTxWebDAVClient implements IAFTxClient {
 	@SuppressWarnings("unchecked")
 	public List<String> getLogsList(String username, String encryptedPassword) {
 
-		logger.info("User " + username + " request list of log files");
+		logger.info("User {} request list of log files", username);
 
 		if (username == null) {
 			logger.error("username is null for getLogsList");
@@ -323,7 +332,7 @@ public class AFTxWebDAVClient implements IAFTxClient {
 				client.executeMethod(method);
 
 				if (method.getStatusCode() != HttpStatus.SC_OK) {
-					logger.error("HTTP return code is invalid: " + method.getStatusCode());
+					logger.error("HTTP return code is invalid: {}", method.getStatusCode());
 					return null;
 				}
 
@@ -341,7 +350,7 @@ public class AFTxWebDAVClient implements IAFTxClient {
 					if (inputStream != null)
 						inputStream.close();
 				}
-				logger.info("User " + username + " got list of log files");
+				logger.info("User {} got list of log files", username);
 			} finally {
 				method.releaseConnection();
 			}
@@ -413,7 +422,7 @@ public class AFTxWebDAVClient implements IAFTxClient {
 					if (out != null)
 						out.close();
 				}
-				logger.info("User " + username + " got aft log file to " + logFile.getAbsolutePath());
+				logger.info("User {} got aft log file to {}", username, logFile.getAbsolutePath());
 			} finally {
 				method.releaseConnection();
 			}
@@ -448,8 +457,8 @@ public class AFTxWebDAVClient implements IAFTxClient {
 			return AFTxWebDAVClientConstants.ERROR_FILE_TO_SEND_TO_AFT_IS_NULL;
 		}
 
-		logger.info("User " + username + " request to send file " + fileToAFT.getAbsolutePath() + " to aft OUTBOX "
-				+ boxPath);
+		logger.info("User {} request to send file {} to aft OUTBOX {}",
+				username, fileToAFT.getAbsolutePath(), boxPath);
 
 		String baseUrl = AFTxBaseURL + "/put/" + boxPath + "/" + fileToAFT.getName();
 		try {
@@ -466,7 +475,8 @@ public class AFTxWebDAVClient implements IAFTxClient {
 					return AFTxWebDAVClientConstants.ERROR_HTTP_RETURN_CODE_IS_INVALID;
 				}
 				logger.info(
-						"User " + username + " sent file " + fileToAFT.getAbsolutePath() + " to aft OUTBOX " + boxPath);
+						"User {} sent file {} to aft OUTBOX {}",
+								username, fileToAFT.getAbsolutePath(), boxPath);
 			} finally {
 				method.releaseConnection();
 			}
