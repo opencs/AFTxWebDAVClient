@@ -31,17 +31,14 @@
  */
 package br.com.opencs.santander.securefiletransfer.webdav.client;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 
 import org.junit.Test;
 
-import br.com.opencs.santander.securefiletransfer.webdav.client.AFTxWebDAVClient;
-
 public class AFTxWebDAVClientTest {
 	
-	public static final File LOG4J_CONFIG_FILE = new File("samples", "log4jconf.xml");
 	public static final File KEYSTORE_FILE = new File("samples", "test.jks");
 	public static final String KEYSTORE_PASSWD = "1234567890";
 
@@ -49,8 +46,7 @@ public class AFTxWebDAVClientTest {
 	public void testAFTxWebDAVClient() throws Exception {
 		AFTxWebDAVClient client;
 		
-		client = new AFTxWebDAVClient(LOG4J_CONFIG_FILE.getAbsolutePath(), 
-				KEYSTORE_FILE.getAbsolutePath(), KEYSTORE_PASSWD);
+		client = new AFTxWebDAVClient(KEYSTORE_FILE.getAbsolutePath(), KEYSTORE_PASSWD);
 		assertNotNull(client);
 	}
 	

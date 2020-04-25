@@ -7,6 +7,18 @@ pela **Open Communications Security**. Todo o conteúdo deste repositório é
 considerado código-aberto e pode ser modificado e/ou utilizado livremente em qualquer
 tipo de aplicação comercial ou não.
 
+## Notas de compatibilidade
+
+A partir da versão 2.x.x, o **AFTx** implementa 2 interfaces de programação (API), uma 
+chamada de **Legada** e a outra chamada **REST**.
+
+A **API Legada** é implementada em **WebDAV** e é compatível com todas as versões anteriores
+do **AFTx**. A **API REST** oferece uma interface mais poderosa e flexível baseada
+em **REST** e **JSON**.
+
+Esta API implementa apenas a versão **Legada** da **API** (**WebDAV**) e não é 
+recomendada para uso em novas integrações.
+
 ## Documentação
 
 Para dar suporte a este repositório, alguns documentos podem ser necessários:
@@ -17,7 +29,8 @@ Para dar suporte a este repositório, alguns documentos podem ser necessários:
 
  Projeto | Localização | Descrição
  ------- | ----------- | ---------
-AFTxWebDAVClient | /java/AFTxWebDAVClient | Implementação de exemplo em Java.
+AFTxWebDAVClient | /java/AFTxWebDAVClient | Implementação de um cliente do AFTx em Java.
+AFTxWebDAVClientSample | /java/AFTxWebDAVClientSample | Implementação de exemplo em Java.
 
 ## Licenciamento
 
@@ -43,4 +56,3 @@ Este projeto também aceita contribução de código de terceiros desde que mant
 licença **BSD 3-Clause License**. Para contribuir, basta enviar **push requests** diretamente
 por meio do **GitHUB**. Toda e qualquer contribuição para este projeto será devidamente
 creditada aos seus autores originais.
-
