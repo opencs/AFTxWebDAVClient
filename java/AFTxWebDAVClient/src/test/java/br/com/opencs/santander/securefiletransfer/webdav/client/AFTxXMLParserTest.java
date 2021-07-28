@@ -34,14 +34,8 @@ package br.com.opencs.santander.securefiletransfer.webdav.client;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 import org.junit.Test;
 
 public class AFTxXMLParserTest {
@@ -54,32 +48,6 @@ public class AFTxXMLParserTest {
 			+ "    <file>file3</file>\n"
 			+ "    <file>filen</file>\n"
 			+ "</availableFiles>\n").getBytes(Charset.forName("utf-8"));
-	
-	protected static List<String> parseFileListCompat(InputStream in) throws Exception {
-		// TODO Remove it in the future
-		ArrayList<String> list = new ArrayList<>(); 
-		SAXBuilder builder = new SAXBuilder();
-		Document doc = builder.build(in);
-		Element root = doc.getRootElement();
-		List<Element> aftFiles = root.getChildren();
-		for (Element aftFile : aftFiles) {
-			list.add(aftFile.getText());
-		}
-		return list;
-	}
-
-	@Test
-	public void testParseFileListCompat() throws Exception {
-		ByteArrayInputStream in = new ByteArrayInputStream(SAMPLE_FILE_LIST_XML);
-		
-		List<String> ret = parseFileListCompat(in);
-		assertEquals(4, ret.size());
-		assertEquals(ret.get(0), "file1");
-		assertEquals(ret.get(1), "file2");
-		assertEquals(ret.get(2), "file3");
-		assertEquals(ret.get(3), "filen");
-	}
-
 	
 	@Test
 	public void testParseFileList() throws Exception {
@@ -109,32 +77,6 @@ public class AFTxXMLParserTest {
 			+ "  </li>\n"
 			+ "</ul>").getBytes(Charset.forName("utf-8"));
 	
-	
-	protected static List<String> parseLogListCompat(InputStream in) throws Exception {
-		// TODO Remove it in the future
-		ArrayList<String> list = new ArrayList<>(); 
-		SAXBuilder builder = new SAXBuilder();
-		Document doc = builder.build(in);
-		Element root = doc.getRootElement();
-		List<Element> logFiles = root.getChildren();
-		for (Element logFile : logFiles) {
-			list.add(logFile.getChildText("a"));
-		}
-		return list;
-	}
-	
-	@Test
-	public void testparseLogListCompat() throws Exception {
-		ByteArrayInputStream in = new ByteArrayInputStream(SAMPLE_LOG_LIST_XML);
-		
-		List<String> ret = parseLogListCompat(in);
-		assertEquals(3, ret.size());
-		assertEquals(ret.get(0), "log-name1.xml");
-		assertEquals(ret.get(1), "log-name2.xml");
-		assertEquals(ret.get(2), "log-name3.xml");
-	}
-
-
 	@Test
 	public void testParseLogList() throws Exception {
 		ByteArrayInputStream in = new ByteArrayInputStream(SAMPLE_LOG_LIST_XML);
