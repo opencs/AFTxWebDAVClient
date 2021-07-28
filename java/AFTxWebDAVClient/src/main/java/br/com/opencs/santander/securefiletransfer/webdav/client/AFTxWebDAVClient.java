@@ -38,9 +38,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
@@ -53,12 +54,10 @@ import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
 import org.apache.jackrabbit.webdav.client.methods.PutMethod;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
 
 /**
  * Esta classe implementa o cliente do AFTx. 
@@ -240,7 +239,6 @@ public class AFTxWebDAVClient implements IAFTxClient {
 		return AFTxWebDAVClientConstants.SUCCESS;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<String> getFileList(String inputBoxName, String username, String encryptedPassword) {
 
 		logger.info("User {} request list of aft available files at INBOX", username);
@@ -260,7 +258,7 @@ public class AFTxWebDAVClient implements IAFTxClient {
 
 		String baseUrl = AFTxBaseURL + "/list/" + inputBoxName;
 
-		List<String> fileList = new ArrayList<String>();
+
 		try {
 			HttpClient client = getHttpClient(username, encryptedPassword);
 			GetMethod method = new GetMethod(baseUrl);
@@ -273,25 +271,24 @@ public class AFTxWebDAVClient implements IAFTxClient {
 					return null;
 				}
 
+				List<String> fileList;
 				InputStream inputStream = null;
 				try {
 					inputStream = method.getResponseBodyAsStream();
-					SAXBuilder builder = new SAXBuilder();
-					Document doc = builder.build(inputStream);
-					Element root = doc.getRootElement();
-					List<Element> aftFiles = root.getChildren();
-					for (Element aftFile : aftFiles) {
-						fileList.add(aftFile.getText());
-					}
+					fileList = AFTxXMLParser.parseFileList(inputStream);
 				} finally {
 					if (inputStream != null)
 						inputStream.close();
 				}
 				logger.info("User {} got list of aft available files at INBOX", username);
+				return fileList;
 			} finally {
 				method.releaseConnection();
 			}
-		} catch (JDOMException ex) {
+		} catch (SAXException ex) {
+			logger.error("error at getFileList", ex);
+			return null;
+		} catch (ParserConfigurationException ex) {
 			logger.error("error at getFileList", ex);
 			return null;
 		} catch (MalformedURLException ex) {
@@ -304,10 +301,8 @@ public class AFTxWebDAVClient implements IAFTxClient {
 			logger.error("error at getFileList", ex);
 			return null;
 		}
-		return fileList;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<String> getLogsList(String username, String encryptedPassword) {
 
 		logger.info("User {} request list of log files", username);
@@ -323,7 +318,6 @@ public class AFTxWebDAVClient implements IAFTxClient {
 
 		String baseUrl = AFTxBaseURL + "/logs";
 
-		List<String> fileList = new ArrayList<String>();
 		try {
 			HttpClient client = getHttpClient(username, encryptedPassword);
 			GetMethod method = new GetMethod(baseUrl);
@@ -336,25 +330,24 @@ public class AFTxWebDAVClient implements IAFTxClient {
 					return null;
 				}
 
+				List<String> fileList;
 				InputStream inputStream = null;
 				try {
 					inputStream = method.getResponseBodyAsStream();
-					SAXBuilder builder = new SAXBuilder();
-					Document doc = builder.build(inputStream);
-					Element root = doc.getRootElement();
-					List<Element> logFiles = root.getChildren();
-					for (Element logFile : logFiles) {
-						fileList.add(logFile.getChildText("a"));
-					}
+					fileList = AFTxXMLParser.parseLogList(inputStream);
 				} finally {
 					if (inputStream != null)
 						inputStream.close();
 				}
 				logger.info("User {} got list of log files", username);
+				return fileList;
 			} finally {
 				method.releaseConnection();
 			}
-		} catch (JDOMException ex) {
+		} catch (SAXException ex) {
+			logger.error("error at getLogsList", ex);
+			return null;
+		} catch (ParserConfigurationException ex) {			
 			logger.error("error at getLogsList", ex);
 			return null;
 		} catch (MalformedURLException ex) {
@@ -367,7 +360,6 @@ public class AFTxWebDAVClient implements IAFTxClient {
 			logger.error("error at getLogsList", ex);
 			return null;
 		}
-		return fileList;
 	}
 
 	public int getLogFromAFT(String logFileName, String username, String encryptedPassword, File logFile) {
