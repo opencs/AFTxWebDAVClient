@@ -18,6 +18,15 @@ Para usuários do **Java**, recomenda-se o uso da biblioteca de integração
 
 * /java/AFTxWebDAVClient
 
+### Nota importante sobre esta versão
+
+Este cliente funciona nas versões 1.x do **AFTx** e na versão 2.x do **AFTx** no
+modo de compatibilidade. Para novas integrações com o **AFTx** 2.x, é recomendado
+o uso da nova interface REST implementada por esta versão pois, além de mais completa,
+é mais fácil de utilizar por ferramentas que possuem integração direta *Web Services*
+REST.
+
+
 ### Audiência
 
 Este documento destina-se a desenvolvedores de aplicação que possuem conhecimentos
@@ -204,7 +213,9 @@ O código de retorno será 200/OK e o conteúdo da resposta será um XML simples
 <?xml version="1.0" encoding="UTF-8"?>
 <ul>
   <li>
-    <a href="/log/Plain-Text">log-name.xml</a>
+    <a href="/log/log-name1.xml">log-name1.xml</a>
+    <a href="/log/log-name2.xml">log-name2.xml</a>
+    <a href="/log/log-name3.xml">log-name3.xml</a>
   </li>
 </ul>
 ```
@@ -241,4 +252,8 @@ Um exemplo da implementação desta API é a **AFTxWebDAVClient** que encontra-s
 repositório no diretório:
 
 * /java/AFTxWebDAVClient
+
+## Histórico
+
+
 
