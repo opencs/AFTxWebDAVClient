@@ -24,8 +24,8 @@ Este cliente funciona nas versões 1.x do **AFTx** e na versão 2.x do **AFTx** 
 modo de compatibilidade. Para novas integrações com o **AFTx** 2.x, é recomendado
 o uso da nova interface REST implementada por esta versão pois, além de mais completa,
 é mais fácil de utilizar por ferramentas que possuem integração direta *Web Services*
-REST.
-
+REST, especialmente se a ferramenta escolhida possuir suporte para o 
+[OpenAPI](https://swagger.io/specification/) versão 3.0.3.
 
 ### Audiência
 
@@ -253,7 +253,16 @@ repositório no diretório:
 
 * /java/AFTxWebDAVClient
 
-## Histórico
+## Notas sobre a versão 2.x
 
+A partir da versão 2.1.2 do AFTx, a documentação da API de integração estará disponível
+por meio do **SwaggerUI** na própria aplicação na **URL** padrão da aplicação:
 
+```
+https://<baseUrl>:<port>/
+```
 
+![Exemplo da tela do SwaggerUI](pics/swagger-screen.png)
+
+Esta página do **SwaggerUI**  também trás uma descrição mais detalhada das
+**APIs** da versão 1.x, reproduzindo o conteúdo deste texto.
